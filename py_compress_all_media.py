@@ -149,7 +149,10 @@ def run_ffmpeg(ffmpeg_command, input_path, isVedio):
     else:
         print(f"\rffmpeg convert: {input_path}, progress: 99.99%                                      ", end = "")
         
-    process.wait()
+    stdout, stderr = process.communicate()      # 读取输出和错误流
+    # 检查退出状态码
+    if process.returncode != 0:
+        print("\033[91m\nConversion failed!\n\033[0m")
 
 def compress_image(input_path, output_path):
     # 获得元数据
