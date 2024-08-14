@@ -145,6 +145,7 @@ def run_ffmpeg(ffmpeg_command, input_path, isVedio):
                     current_time = h * 3600 + m * 60 + s
                     progress = (current_time / total_duration) * 100
                     print(f"\rffmpeg convert: {input_path}, progress: {progress:.2f}%", end = "")
+        print("")
     else:
         print(f"ffmpeg convert: {input_path}")
         
