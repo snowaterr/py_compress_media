@@ -132,7 +132,6 @@ def run_ffmpeg(ffmpeg_command, input_path, isVedio):
         progress_pattern = re.compile(r"time=(\d+:\d+:\d+\.\d+)")
 
         total_duration = get_video_duration(input_path)
-
         while True:
             output = process.stderr.readline()
             if output == '' and process.poll() is not None:
@@ -145,9 +144,9 @@ def run_ffmpeg(ffmpeg_command, input_path, isVedio):
                     h, m, s = map(float, time_str.split(':'))
                     current_time = h * 3600 + m * 60 + s
                     progress = (current_time / total_duration) * 100
-                    print(f"\rffmpeg convert: {input_path}, progress: {progress:.2f}%                                      ", end = "")
+                    print(f"\rffmpeg convert: {input_path}, progress: {progress:.2f}%", end = "")
     else:
-        print(f"\rffmpeg convert: {input_path}, progress: 99.99%                                      ", end = "")
+        print(f"ffmpeg convert: {input_path}")
         
     stdout, stderr = process.communicate()      # 读取输出和错误流
     # 检查退出状态码
