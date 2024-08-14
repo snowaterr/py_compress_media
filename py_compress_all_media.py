@@ -120,12 +120,12 @@ def get_anti_transpose(orientation):
 
 def get_video_duration(input_path):
     # 获取视频总时长
-    result = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', input_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    result = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', input_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8')
     return float(result.stdout)
 
 def run_ffmpeg(ffmpeg_command, input_path, isVedio):
     # 启动ffmpeg进程
-    process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    process = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', text=True)
     
     if isVedio:
         # 用于解析进度的正则表达式
