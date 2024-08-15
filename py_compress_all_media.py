@@ -164,8 +164,7 @@ def compress_image(input_path, output_path):
     if max_size_x<=0 or max_size_y<=0:
         scale = 1
     else:
-        scale = min(1, max_size_x/original_width, max_size_y/original_height)
-        scale = 1 if scale <= 0.7 else scale        #长图或者全景图不调分辨率
+        scale = max(0.7, min(1, max_size_x/original_width, max_size_y/original_height))     #设个0.7的最小值      
     new_width = scale * original_width
     new_height = scale * original_height
 
