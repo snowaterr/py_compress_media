@@ -102,7 +102,7 @@ def write_metadata(output_file, metadata):
                 params=["-P", "-overwrite_original"]
             )
     except Exception:
-        return
+        pass
 
 # 这里是反向操作！！用来抵消ffmpeg对旋转的修正
 def get_anti_transpose(orientation):
@@ -152,7 +152,7 @@ def run_ffmpeg(ffmpeg_command, input_path, isVedio):
     stdout, stderr = process.communicate()      # 读取输出和错误流
     # 检查退出状态码
     if process.returncode != 0:
-        print("\033[91m\nConversion failed!\n\033[0m")
+        raise Exception("Conversion failed!")
 
 def compress_image(input_path, output_path):
     # 获得元数据
@@ -212,28 +212,36 @@ def delete_file(input_path):
     os.remove(input_path)
     print(f'\nRemove {input_path}')
 
-def process_media(filename):
-    format = filename.split('.')[-1].lower()
-    if format in to_delete_formats:
-        delete_file(filename)
+class process_media:
+    def __init__(self, filename):
+        self.filename = filename
+        self.output_path = None
 
-    elif format in to_compress_image_formats:
-        # 转换，并删除原图
-        if format == 'jpg':
-            output_path = filename
-            metadata = compress_image(filename, output_path)
-            write_metadata(output_path, metadata)
-        else:
-            output_path = filename.rsplit('.', 1)[0] + '.jpg'
-            metadata = compress_image(filename, output_path)
-            write_metadata(output_path, metadata)
-            os.remove(filename)
+    def run(self):
+        format = self.filename.split('.')[-1].lower()
+        if format in to_delete_formats:
+            delete_file(self.filename)
+        elif format in to_compress_image_formats:
+            self.output_path = '_'+self.filename.rsplit('.', 1)[0] + '.jpg'     # 文件名前面加_ ,图片固定压缩成jpg
+            metadata = compress_image(self.filename, self.output_path)
+            write_metadata(self.output_path, metadata)
 
-    elif format in to_compress_vedio_formats:
-        # 转换，保留原格式，并直接覆盖
-        output_path = filename.rsplit('.', 1)[0]+"_.mov"
-        compress_video(filename, output_path)
-        os.remove(filename)
+        elif format in to_compress_vedio_formats:
+            self.output_path = '_'+self.filename        # 文件名前面加_ ,格式不变
+            compress_video(self.filename, self.output_path)
+
+    # 直接覆盖旧的媒体文件
+    def cover_old_file(self):
+        if self.output_path:
+            os.remove(self.filename)
+            os.rename(self.output_path, self.output_path[1:])
+    
+    # 出错时清理output
+    def try_clear_error_output(self):
+        try:
+            os.remove(self.output_path)
+        except:
+            pass
 
 def process_media_in_folder(folder_path):
     # 用绝对路径
@@ -243,8 +251,11 @@ def process_media_in_folder(folder_path):
         print(f"\n[ directory: {root} ]")
         for filename in files:
             try:
-                process_media(filename)
+                pm = process_media(filename)
+                pm.run()
+                pm.cover_old_file()
             except Exception as e:
+                pm.try_clear_error_output()
                 tb_str = ''.join(traceback.format_exception(None, e, e.__traceback__))
                 print(f"\033[91m\n{os.path.join(root, filename)} process error, exception: {e}\nTraceback:\n{tb_str}\033[0m")
     
